@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
@@ -42,7 +41,6 @@ app.use((req, res, next) => {
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
     capturedJsonResponse = bodyJson;
-    // @ts-ignore - keep original behavior
     return originalResJson.apply(res, [bodyJson, ...args]);
   };
 
@@ -69,7 +67,6 @@ app.use((req, res, next) => {
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
-    // rethrow for visibility/logging upstream if desired
     throw err;
   });
 
@@ -83,16 +80,18 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // use PORT from env (default 5001 for dev to avoid macOS ControlCenter on 5000)
- const port = parseInt(process.env.PORT || "5001", 10);
-const host = "0.0.0.0";
+  // Use env PORT on Render, fallback to 5001 locally.
+  const port = parseInt(process.env.PORT || "5001", 10);
+  const host = process.env.HOST || "0.0.0.0";
 
-httpServer.listen(
-  {
-    port,
-    host,
-  },
-  () => {
-    log(`serving on http://${host}:${port}`);
-  }
-);
+  httpServer.listen(
+    {
+      port,
+      host,
+    },
+    () => {
+      log(`serving on http://${host}:${port}`);
+    },
+  );
+})();
+

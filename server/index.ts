@@ -84,10 +84,15 @@ app.use((req, res, next) => {
   }
 
   // use PORT from env (default 5001 for dev to avoid macOS ControlCenter on 5000)
-  const port = parseInt(process.env.PORT || "5001", 10);
-  const host = process.env.HOST || "127.0.0.1";
+ const port = parseInt(process.env.PORT || "5001", 10);
+const host = "0.0.0.0";
 
-  httpServer.listen(port, host, () => {
+httpServer.listen(
+  {
+    port,
+    host,
+  },
+  () => {
     log(`serving on http://${host}:${port}`);
-  });
-})();
+  }
+);
